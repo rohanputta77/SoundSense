@@ -1,0 +1,30 @@
+# SoundSense ESC-50 Environmental Sound Classification
+# Core Web Framework & Server
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.0.0
+python-multipart>=0.0.9
+
+# Authentication & Security
+bcrypt>=4.0.0
+pyjwt>=2.8.0
+
+# System Telemetry & Utilities
+psutil>=5.9.0
+
+# Numerical Computing & Data Processing
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+
+# Audio Processing & Signal Analysis
+soundfile>=0.12.1
+librosa>=0.10.0
+
+# Deep Learning Framework
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Visualization & Model Utilities
+matplotlib>=3.7.0
+huggingface_hub>=0.20.0

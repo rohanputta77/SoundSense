@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SoundSense — AI-powered Environmental Sound Classification using ESC-50 deep learning models (ResNet-18, VGG-16, SResNet, CNN-GRU). Studio interface for instant acoustic analysis." />
+  <title>SoundSense — Environmental Sound Classification Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Ambient Studio Atmospheric Soundscape (Moving Background & Harmonic Wave Parallax) -->
+  <div class="ambient-layer" id="ambient-layer" aria-hidden="true">
+    <div class="ambient-bg-image" id="ambient-bg-image"></div>
+    <div class="ambient-waves-wrap">
+      <div class="ambient-wave-plane wave-plane-1"></div>
+      <div class="ambient-wave-plane wave-plane-2"></div>
+    </div>
+    <div class="aurora aurora-1"></div>
+    <div class="aurora aurora-2"></div>
+    <div class="aurora aurora-3"></div>
+    <div class="ambient-vignette"></div>
+    <div class="grain"></div>
+  </div>
+
+  <!-- Ambient background canvas (High-performance audio-reactive layer) -->
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <!-- Top Navigation & Workspace Header -->
+  <header class="app-header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="15" stroke="url(#logo-grad)" stroke-width="2"/>
+            <rect x="8" y="12" width="3" height="8" rx="1.5" fill="url(#logo-grad)"/>
+            <rect x="13" y="7" width="3" height="18" rx="1.5" fill="url(#logo-grad)"/>
+            <rect x="18" y="10" width="3" height="12" rx="1.5" fill="url(#logo-grad)"/>
+            <rect x="23" y="14" width="3" height="4" rx="1.5" fill="url(#logo-grad)"/>
+            <defs>
+              <linearGradient id="logo-grad" x1="8" y1="7" x2="26" y2="25" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38bdf8"/>
+                <stop offset="0.55" stop-color="#818cf8"/>
+                <stop offset="1" stop-color="#fbbf24"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Sound<span class="gradient-text">Sense</span></span>
+          <span class="brand-tag">ESC-50 Acoustic Studio</span>
+        </div>
+      </div>
+
+      <!-- Workspace View Switcher Tabs (Declutters stacked sections) -->
+      <nav class="view-nav" id="view-nav" role="tablist" aria-label="Application views">
+        <span class="nav-glider" id="nav-glider" aria-hidden="true"></span>
+        <button class="view-tab active" role="tab" id="tab-nav-studio" aria-selected="true" aria-controls="view-studio" data-view="studio" aria-keyshortcuts="1">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+          <span>Classifier Studio</span>
+        </button>
+        <button class="view-tab" role="tab" id="tab-nav-pipeline" aria-selected="false" aria-controls="view-pipeline" data-view="pipeline" aria-keyshortcuts="2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6" rx="1.5"/><rect x="16" y="3" width="6" height="6" rx="1.5"/><rect x="9" y="15" width="6" height="6" rx="1.5"/><path d="M5 9v3a2 2 0 0 0 2 2h5m5-5v3a2 2 0 0 1-2 2h-5"/></svg>
+          <span>Architecture &amp; Pipeline</span>
+        </button>
+        <button class="view-tab" role="tab" id="tab-nav-taxonomy" aria-selected="false" aria-controls="view-taxonomy" data-view="taxonomy" aria-keyshortcuts="3">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <span>ESC-50 Taxonomy</span>
+        </button>
+        <button class="view-tab dev-tab" role="tab" id="tab-nav-training" aria-selected="false" aria-controls="view-training" data-view="training" aria-keyshortcuts="4" style="display: none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+          <span>Training &amp; Model</span>
+          <span class="nav-dev-tag" id="tag-badge-training">DEV</span>
+        </button>
+        <button class="view-tab dev-tab" role="tab" id="tab-nav-analytics" aria-selected="false" aria-controls="view-analytics" data-view="analytics" aria-keyshortcuts="5" style="display: none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          <span>System Analytics</span>
+          <span class="nav-dev-tag" id="tag-badge-analytics">DEV</span>
+        </button>
+      </nav>
+
+      <div class="header-actions">
+        <div class="header-status" id="header-status" title="Engine status">
+          <span class="status-indicator" id="status-indicator" aria-hidden="true"></span>
+          <span class="status-label" id="status-label">Engine Ready</span>
+        </div>
+        <button class="icon-btn" id="shortcuts-btn" type="button" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)" aria-haspopup="dialog">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/></svg>
+        </button>
+
+        <!-- Google-Style Developer Profile Account Button -->
+        <div class="auth-account-wrapper" id="auth-account-wrapper">
+          <button class="account-btn" id="account-btn" type="button" aria-label="Developer Account" aria-haspopup="dialog" aria-expanded="false" aria-controls="account-menu-popover" title="Developer Sign In">
+            <span class="account-avatar" id="account-avatar">
+              <!-- Default Google-style user profile silhouette -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <span class="dev-badge-dot" id="dev-badge-dot" aria-hidden="true" style="display: none;"></span>
+          </button>
+
+          <!-- Google-Style Account Menu Popover -->
+          <div class="account-menu-popover" id="account-menu-popover" hidden>
+            <div class="account-menu-header">
+              <div class="popover-avatar">
+                <span class="popover-initial" id="popover-initial">L</span>
+              </div>
+              <div class="popover-user-info">
+                <h4 class="popover-name" id="popover-name">Lead AI Engineer</h4>
+                <p class="popover-email" id="popover-email">developer@soundsense.ai</p>
+                <span class="popover-role-badge">🛡️ Verified Developer &amp; Admin</span>
+              </div>
+            </div>
+            <div class="account-menu-divider"></div>
+            <div class="account-menu-links">
+              <button type="button" class="account-menu-item" id="menu-goto-pipeline">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6" rx="1.5"/><rect x="16" y="3" width="6" height="6" rx="1.5"/><rect x="9" y="15" width="6" height="6" rx="1.5"/><path d="M5 9v3a2 2 0 0 0 2 2h5m5-5v3a2 2 0 0 1-2 2h-5"/></svg>
+                <span>Architecture &amp; Pipeline</span>
+              </button>
+              <button type="button" class="account-menu-item" id="menu-goto-taxonomy">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                <span>ESC-50 Taxonomy Explorer</span>
+              </button>
+              <button type="button" class="account-menu-item" id="menu-goto-training">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                <span>Training &amp; Model Portal</span>
+              </button>
+              <button type="button" class="account-menu-item" id="menu-goto-analytics">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                <span>System Analytics Dashboard</span>
+              </button>
+              <button type="button" class="account-menu-item" id="menu-switch-account" style="color: var(--cyan);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Switch / Re-authenticate Login</span>
+              </button>
+            </div>
+            <div class="account-menu-divider"></div>
+            <button type="button" class="account-signout-btn" id="btn-logout">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span>Sign Out of Developer Mode</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="app-main" id="app-main">
+
+    <!-- ════════════ VIEW 1: CLASSIFIER STUDIO (Primary Workspace) ════════════ -->
+    <section class="view-panel active" id="view-studio" role="tabpanel" aria-labelledby="tab-nav-studio">
+      <div class="panel-header-banner">
+        <div class="banner-content">
+          <div class="banner-badge">
+            <span class="badge-dot" aria-hidden="true"></span>
+            ESC-50 Deep Learning Acoustic Suite
+          </div>
+          <h1 class="banner-title">Environmental Sound <span class="gradient-text">Classification Studio</span></h1>
+          <p class="banner-desc">
+            Benchmarking state-of-the-art acoustic architectures including <strong>ResNet-18</strong>, <strong>VGG-16</strong>, <strong>SResNet</strong>, and <strong>CNN-GRU</strong> for real-time sound recognition across 50 environmental classes.
+          </p>
+          <div class="banner-pills-row">
+            <span class="bpill">50 Audio Classes</span>
+            <span class="bpill">ResNet-18 &amp; VGG-16</span>
+            <span class="bpill">Interactive Waveform</span>
+          </div>
+        </div>
+        <div class="banner-visual-showcase" aria-hidden="true">
+          <div class="banner-img-frame">
+            <img src="hero_bg.jpg" alt="Acoustic waveform spectral representation" class="banner-hero-img" />
+            <div class="banner-img-overlay"></div>
+            <canvas id="hero-wave" class="hero-wave-canvas"></canvas>
+            <div class="hero-scanline"></div>
+            <div class="banner-floating-badge">
+              <span class="wave-pulse-dot" id="hero-pulse"></span>
+              <span id="hero-signal-label">Acoustic Waveform Analysis</span>
+              <span class="hero-signal-db" id="hero-signal-db">-∞ dB</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Studio Workbench: 2-Column Split -->
+      <div class="studio-workbench">
+
+        <!-- Left Workbench: Input & Controls (Separated Modular Cards) -->
+        <div class="bench-col bench-input">
+
+          <!-- CARD 1: Classification Model Configuration -->
+          <div class="card-box card-module">
+            <div class="card-header">
+              <span class="card-tag">Classification Model</span>
+              <span class="card-sub-info" id="model-badge-info">ResNet-18</span>
+            </div>
+            <div class="control-group no-margin">
+              <div class="select-wrap">
+                <select id="model-select" class="custom-select" aria-label="Select classification model">
+                  <option value="resnet18" selected>ResNet-18</option>
+                  <option value="vgg16">VGG-16</option>
+                  <option value="sresnet">SResNet</option>
+                  <option value="cnngru">CNN-GRU</option>
+                </select>
+                <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2: Quick Test Presets (Instant Evaluation) -->
+          <div class="card-box card-module">
+            <div class="card-header">
+              <span class="card-tag">Quick Test Presets</span>
+              <span class="card-sub-info">1-Click Test</span>
+            </div>
+            <p class="card-desc-compact">Select a verified ESC-50 sample for instant feature extraction &amp; classification:</p>
+            <div class="presets-row" id="presets-row">
+              <button type="button" class="preset-btn" data-sound="dog" title="Test Dog Bark">🐶 Dog</button>
+              <button type="button" class="preset-btn" data-sound="rain" title="Test Rain">🌧️ Rain</button>
+              <button type="button" class="preset-btn" data-sound="alarm" title="Test Clock Alarm">⏰ Alarm</button>
+              <button type="button" class="preset-btn" data-sound="typing" title="Test Keyboard Typing">⌨️ Typing</button>
+              <button type="button" class="preset-btn" data-sound="siren" title="Test Siren">🚨 Siren</button>
+            </div>
+          </div>
+
+          <!-- CARD 3: Live Microphone Recording (Independent Module) -->
+          <div class="card-box card-module">
+            <div class="card-header">
+              <span class="card-tag">Live Microphone Recording</span>
+              <span class="card-sub-info">Real-time Audio</span>
+            </div>
+            <p class="card-desc-compact">Capture ambient environmental sounds directly through your device microphone:</p>
+            <button class="mic-btn" id="mic-btn" type="button" aria-pressed="false" title="Record audio with your microphone">
+              <span class="mic-orb" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+              </span>
+              <span class="mic-copy">
+                <strong id="mic-label">Record with microphone</strong>
+                <small id="mic-hint">Tap to start live audio capture</small>
+              </span>
+              <span class="mic-meter" aria-hidden="true"><span class="mic-meter-fill" id="mic-level-fill"></span></span>
+            </button>
+          </div>
+
+          <!-- CARD 4: Audio File Placer (Drag & Drop from File Explorer + MPEG / MPG Support) -->
+          <div class="card-box card-module">
+            <div class="card-header">
+              <span class="card-tag">Audio File Placer</span>
+              <span class="card-sub-info">Drag &amp; Drop</span>
+            </div>
+            <p class="card-desc-compact">Drag and drop audio files from your File Explorer or browse from device:</p>
+
+            <div class="upload-zone" id="upload-zone" role="button" tabindex="0" aria-label="Upload audio file, drag and drop from File Explorer or click to browse">
+              <input type="file" id="audio-input" accept="audio/*,.wav,.mp3,.ogg,.flac,.aac,.m4a,.mpg,.mpeg,audio/mpeg,video/mpeg" hidden aria-label="Choose audio file" />
+              
+              <div class="upload-idle" id="upload-idle">
+                <div class="upload-icon-circle" aria-hidden="true">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <p class="upload-title">Drop audio from File Explorer</p>
+                <p class="upload-sub">or <span class="highlight-link">browse from device</span></p>
+                <div class="format-pills">
+                  <span>WAV</span><span>MP3</span><span>MPEG / MPG</span><span>OGG</span><span>FLAC</span><span>M4A</span>
+                </div>
+              </div>
+
+              <div class="upload-ready" id="upload-ready" hidden>
+                <div class="file-card">
+                  <div class="file-icon-box" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  </div>
+                  <div class="file-meta">
+                    <p class="file-title" id="file-name">sample.wav</p>
+                    <p class="file-detail" id="file-size">0 KB</p>
+                  </div>
+                  <button class="remove-btn" id="file-remove" type="button" aria-label="Remove audio file" title="Remove file">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+
+                <!-- Waveform Player Preview -->
+                <div class="player-bar">
+                  <button class="play-toggle" id="play-btn" type="button" aria-label="Play or pause audio">
+                    <svg id="play-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    <svg id="pause-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                  </button>
+                  <div class="player-track" id="player-track" title="Click to seek">
+                    <canvas id="wave-canvas" class="wave-canvas" aria-label="Audio waveform, click to seek"></canvas>
+                    <span class="player-playhead" id="player-playhead" aria-hidden="true"></span>
+                  </div>
+                  <span class="timer-tag"><span id="time-display">0:00</span><span class="timer-sep">/</span><span id="dur-display">0:00</span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Run Classification Action -->
+            <button class="btn-run" id="classify-btn" type="button" disabled aria-label="Run sound recognition analysis">
+              <span id="btn-classify-inner" class="btn-flex">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                <span>Classify Sound</span>
+              </span>
+              <span id="btn-loading" class="btn-flex" hidden>
+                <span class="spin-ring" aria-hidden="true"></span>
+                <span>Processing Audio...</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Workbench: Results & Visualizer -->
+        <div class="bench-col bench-output">
+          <div class="card-box h-full">
+
+            <!-- Empty State -->
+            <div class="result-state-empty" id="result-empty">
+              <div class="empty-art" aria-hidden="true">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                  <line x1="12" y1="19" x2="12" y2="22"/>
+                  <circle cx="12" cy="12" r="9" stroke-dasharray="2 3" opacity="0.4"/>
+                </svg>
+              </div>
+              <h2 class="empty-head">Awaiting Audio Input</h2>
+              <p class="empty-sub">Choose a preset sound above or drop a file to view sound category detection, confidence metrics, and spectral feature maps.</p>
+            </div>
+
+            <!-- Loading State -->
+            <div class="result-state-loading" id="result-loading" hidden aria-live="polite">
+              <div class="quantum-loader" aria-hidden="true">
+                <div class="q-ring q-1"></div>
+                <div class="q-ring q-2"></div>
+                <div class="q-ring q-3"></div>
+                <div class="q-core"></div>
+              </div>
+              <h2 class="loading-head">Extracting Acoustic Features</h2>
+              <p class="loading-model-note">Processing via <span id="loading-model-name" class="highlight-cyan">ResNet-18</span></p>
+              <div class="pipeline-progress" id="loading-steps">
+                <div class="pipe-step" id="lstep-1"><span class="step-bullet"></span><span>Audio Buffer Decoded</span></div>
+                <div class="pipe-step" id="lstep-2"><span class="step-bullet"></span><span>Extracting Linear MFCCs &amp; Log-Mel</span></div>
+                <div class="pipe-step" id="lstep-3"><span class="step-bullet"></span><span>Evaluating Deep Acoustic Latents</span></div>
+                <div class="pipe-step" id="lstep-4"><span class="step-bullet"></span><span>Ranking Probability Distribution</span></div>
+              </div>
+            </div>
+
+            <!-- Output State -->
+            <div class="result-state-output" id="result-output" hidden aria-live="polite">
+              <div class="output-topbar">
+                <div class="active-model-tag" id="result-model-badge">ResNet-18</div>
+                <div class="output-actions">
+                  <button class="btn-refresh" id="result-copy" type="button" aria-label="Copy analysis report" title="Copy analysis report">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Copy</span>
+                  </button>
+                  <button class="btn-refresh" id="result-retry" type="button" aria-label="Re-analyze audio">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.93"/></svg>
+                    <span>Re-evaluate</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Primary Highlight Prediction -->
+              <div class="primary-prediction-card">
+                <div class="prediction-emoji" id="top-emoji" aria-hidden="true">🐕</div>
+                <div class="prediction-details">
+                  <span class="pred-label">Identified Sound</span>
+                  <h3 class="pred-category" id="top-category">Dog Bark</h3>
+                  <div class="pred-group-pill" id="top-group">Animals &bull; ESC-50 Class #0</div>
+                </div>
+                <div class="confidence-meter-box" id="top-conf-ring" title="Confidence Score">
+                  <svg class="ring-svg" viewBox="0 0 80 80" aria-hidden="true">
+                    <circle class="ring-track" cx="40" cy="40" r="32"/>
+                    <circle class="ring-fill" id="conf-fill-circle" cx="40" cy="40" r="32"/>
+                  </svg>
+                  <div class="ring-text">
+                    <span class="pct-num" id="conf-pct">96%</span>
+                    <span class="pct-lbl">CONF</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Out-of-Scope / Unrecognized Category Notification Banner -->
+              <div class="out-of-scope-banner" id="out-of-scope-banner" hidden>
+                <div class="oos-icon" aria-hidden="true">⚠️</div>
+                <div class="oos-content">
+                  <div class="oos-title">Acoustic Signal Not in ESC-50 Classes</div>
+                  <div class="oos-desc" id="oos-desc-text">The acoustic characteristics (frequency envelope, harmonics, and temporal dynamics) do not match any of the 50 standardized environmental categories in ESC-50.</div>
+                </div>
+              </div>
+
+              <!-- Signal telemetry mini stats -->
+              <div class="signal-stats" id="signal-stats" aria-label="Signal statistics">
+                <div class="stat-tile">
+                  <span class="stat-lbl">RMS Energy</span>
+                  <span class="stat-val" id="stat-rms">—</span>
+                  <div class="stat-bar"><i id="stat-rms-bar"></i></div>
+                </div>
+                <div class="stat-tile">
+                  <span class="stat-lbl">Zero Crossing</span>
+                  <span class="stat-val" id="stat-zcr">—</span>
+                  <div class="stat-bar"><i id="stat-zcr-bar"></i></div>
+                </div>
+                <div class="stat-tile">
+                  <span class="stat-lbl">Peak Level</span>
+                  <span class="stat-val" id="stat-peak">—</span>
+                  <div class="stat-bar"><i id="stat-peak-bar"></i></div>
+                </div>
+                <div class="stat-tile">
+                  <span class="stat-lbl">Inference</span>
+                  <span class="stat-val" id="stat-latency">—</span>
+                  <div class="stat-bar"><i id="stat-latency-bar"></i></div>
+                </div>
+              </div>
+
+              <!-- Top 5 Ranked Probabilities -->
+              <div class="top5-container">
+                <div class="top5-header">
+                  <span class="sec-label">Ranked Predictions (Softmax Distribution)</span>
+                </div>
+                <ul class="top5-items" id="top5-list" aria-label="Top 5 predictions ranked by confidence">
+                  <!-- Dynamically rendered -->
+                </ul>
+              </div>
+
+              <!-- Feature Map / Spectrogram Canvas with Scientific Telemetry -->
+              <div class="spec-module">
+                <div class="spec-header">
+                  <div class="spec-title-box">
+                    <span class="sec-label">Dual-Modal Acoustic Representation</span>
+                    <span class="spec-sublabel" id="spec-sublabel">128-Band Log-Mel Spectrogram (Spatial Harmonic)</span>
+                  </div>
+                  <div class="spec-telemetry" id="spec-telemetry">
+                    <span class="tele-item" id="spec-rate">22.05 kHz</span>
+                    <span class="tele-sep">&bull;</span>
+                    <span class="tele-item" id="spec-dur">5.00s</span>
+                    <span class="tele-sep">&bull;</span>
+                    <span class="tele-item" id="spec-mode">Log-Mel</span>
+                  </div>
+                </div>
+
+                <!-- Preprocessing Mode Switcher Tabs -->
+                <div class="feat-mode-bar" id="feat-mode-bar" role="tablist" aria-label="Feature visualization modes">
+                  <button class="feat-tab-btn active" id="btn-mode-mel" data-mode="mel" role="tab" aria-selected="true" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h3l2-7 4 14 3-9 2 4 4-2h2"/></svg>
+                    <span>128-Mel Spectrogram</span>
+                  </button>
+                  <button class="feat-tab-btn" id="btn-mode-rp" data-mode="rp" role="tab" aria-selected="false" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="2"/><circle cx="16" cy="16" r="2"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/></svg>
+                    <span>Threshold-Free RP</span>
+                  </button>
+                  <button class="feat-tab-btn" id="btn-mode-active" data-mode="active" role="tab" aria-selected="false" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <span>Active Segment</span>
+                  </button>
+                </div>
+
+                <div class="spec-canvas-wrap">
+                  <canvas id="spec-canvas" class="spectrogram-canvas" width="560" height="140" aria-label="Acoustic time-frequency spectrogram"></canvas>
+                </div>
+                <div class="spec-legend-row">
+                  <div class="legend-scale">
+                    <span class="leg-lbl" id="leg-scale-lbl">Energy (dB):</span>
+                    <div class="leg-gradient-bar" id="leg-gradient-bar" aria-hidden="true"></div>
+                    <div class="leg-marks" id="leg-marks">
+                      <span>-80 dB</span>
+                      <span>-50 dB</span>
+                      <span>-25 dB</span>
+                      <span>0 dB</span>
+                    </div>
+                  </div>
+                  <div class="spec-cursor-info">
+                    <span class="ci-item"><span class="ci-key" id="ci-k1">TIME</span> <span id="cursor-time" class="highlight-cyan">0.00s</span></span>
+                    <span class="ci-item"><span class="ci-key" id="ci-k2">FREQ</span> <span id="cursor-freq" class="highlight-cyan">—</span></span>
+                    <span class="ci-item"><span class="ci-key" id="ci-k3">LEVEL</span> <span id="cursor-level" class="highlight-cyan">—</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+      <!--
+  PASTE THIS BLOCK in index.html inside #view-studio, right AFTER the closing </div>
+  of <div class="studio-workbench"> and right BEFORE </section> of view-studio
+  (i.e. just above the "VIEW 2: NEURAL ARCHITECTURE" comment).
+-->
+
+      <!-- ════════════ BATCH CLASSIFICATION (multi-file upload + CSV export) ════════════ -->
+      <div class="card-box card-module batch-card" id="batch-card">
+        <div class="card-header">
+          <span class="card-tag">Batch Upload &amp; CSV Export</span>
+          <span class="card-sub-info" id="batch-model-info">ResNet-18</span>
+        </div>
+        <p class="card-desc-compact">Classify many clips at once with the model selected above, then download the top 5 predictions for every file as a CSV.</p>
+
+        <div class="batch-drop" id="batch-drop" role="button" tabindex="0" aria-label="Add multiple audio files, drag and drop or click to browse">
+          <input type="file" id="batch-input" accept="audio/*,.wav,.mp3,.ogg,.flac,.aac,.m4a,.mpg,.mpeg" multiple hidden aria-label="Choose multiple audio files" />
+          <p class="batch-drop-title">Drop several audio files here</p>
+          <p class="batch-drop-sub">or <span class="highlight-link">browse from device</span> &middot; up to <span id="batch-max-label">100</span> files</p>
+        </div>
+
+        <ul class="batch-file-list" id="batch-file-list" aria-label="Files queued for batch classification"></ul>
+
+        <div class="batch-progress" id="batch-progress" hidden>
+          <div class="train-progress-track"><div class="train-progress-fill" id="batch-progress-fill"></div></div>
+          <span class="batch-progress-text" id="batch-progress-text">0 / 0</span>
+        </div>
+
+        <div class="batch-actions">
+          <button class="btn-run batch-run" id="batch-run-btn" type="button" disabled>
+            <span class="btn-flex" id="batch-run-idle"><span>Classify All</span></span>
+            <span class="btn-flex" id="batch-run-busy" hidden><span class="spin-ring" aria-hidden="true"></span><span>Processing...</span></span>
+          </button>
+          <button class="ghost-btn" id="batch-csv-btn" type="button" disabled>Download CSV</button>
+          <button class="ghost-btn" id="batch-clear-btn" type="button" disabled>Clear</button>
+        </div>
+
+        <div class="batch-table-wrap" id="batch-table-wrap" hidden>
+          <table class="spec-table batch-table" id="batch-table">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Top 1</th>
+                <th>Top 2</th>
+                <th>Top 3</th>
+                <th>Top 4</th>
+                <th>Top 5</th>
+              </tr>
+            </thead>
+            <tbody id="batch-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ VIEW 2: NEURAL ARCHITECTURE & RESEARCH PIPELINE (COMBINED) ════════════ -->
+    <section class="view-panel" id="view-pipeline" role="tabpanel" aria-labelledby="tab-nav-pipeline" hidden>
+      <div class="panel-inner">
+        <!-- Unified Header -->
+        <div class="panel-title-group">
+          <span class="badge-pill">Acoustic Engineering &amp; Neural Systems</span>
+          <h2 class="panel-heading">Neural Architecture &amp; Research Pipeline</h2>
+          <p class="panel-subtext">Comprehensive engineering methodology: from raw audio ingestion and multi-representation feature extraction to dual-modal neural architectures, SwiGLU gating, and empirical benchmarks on ESC-50.</p>
+        </div>
+
+        <!-- Phase 01: End-to-End Signal Ingestion & Dual-Modal Pipeline -->
+        <div class="combined-subhead">
+          <div class="subhead-title-wrap">
+            <span class="subhead-badge">Phase 01</span>
+            <h3 class="subhead-title">End-to-End Audio Ingestion &amp; Feature Pipeline</h3>
+          </div>
+          <p class="subhead-meta">Deterministic 4-stage processing flow converting raw sound waves into multimodal neural tensors</p>
+        </div>
+
+        <div class="pipeline-cards-row">
+          <div class="flow-step-card">
+            <div class="flow-num">01</div>
+            <h4 class="flow-step-title">Resampling &amp; Active Segment</h4>
+            <p class="flow-step-desc">Audio is resampled to a standardized 22,050 Hz (5.0s duration, 110,250 samples), peak-normalized to [-1.0, 1.0], and scanned for the longest energetic acoustic activity window.</p>
+            <div class="flow-pill">22.05 kHz &bull; Peak Norm &bull; VAD</div>
+          </div>
+
+          <div class="flow-connector" aria-hidden="true">&rarr;</div>
+
+          <div class="flow-step-card">
+            <div class="flow-num">02</div>
+            <h4 class="flow-step-title">Dual-Modal Feature Extraction</h4>
+            <p class="flow-step-desc">Extracts 128-band Log-Mel spectrograms &amp; 40-MFCCs (macroscopic linear/harmonic) alongside 128-PAA Threshold-Free Recurrence Plots (microscopic chaotic dynamics).</p>
+            <div class="flow-pill">128-Mel &bull; 40-MFCC &bull; 128x128 RP</div>
+          </div>
+
+          <div class="flow-connector" aria-hidden="true">&rarr;</div>
+
+          <div class="flow-step-card">
+            <div class="flow-num">03</div>
+            <h4 class="flow-step-title">Stratified 5-Fold Validation</h4>
+            <p class="flow-step-desc">Dataset is split into 5 official balanced folds with strictly disjoint recording sources to ensure zero data leakage between training, validation, and test partitions.</p>
+            <div class="flow-pill">5 Folds &bull; Zero Leakage &bull; PyTorch</div>
+          </div>
+
+          <div class="flow-connector" aria-hidden="true">&rarr;</div>
+
+          <div class="flow-step-card">
+            <div class="flow-num">04</div>
+            <h4 class="flow-step-title">Dual-Modal Fusion &amp; SwiGLU</h4>
+            <p class="flow-step-desc">Cross-attention merges continuous phase recurrence with spectral energy maps, processed through SwiGLU-gated SResNet to suppress ambient noise and produce >97.8% accuracy.</p>
+            <div class="flow-pill">DMFF Cross-Attn &bull; SwiGLU SResNet</div>
+          </div>
+        </div>
+
+        <!-- Live Preprocessed Dataset Telemetry Card -->
+        <div class="dataset-telemetry-banner">
+          <div class="dt-head">
+            <div class="dt-badge">
+              <span class="status-indicator live" aria-hidden="true"></span>
+              Preprocessing Suite Telemetry
+            </div>
+            <span class="dt-sub">Standardized ESC-50 dataset telemetry across 50 acoustic classes</span>
+          </div>
+          <div class="dt-grid">
+            <div class="dt-stat">
+              <span class="dt-val">1,998</span>
+              <span class="dt-lbl">Processed Clips (22.05 kHz)</span>
+            </div>
+            <div class="dt-stat">
+              <span class="dt-val">128 &times; 216</span>
+              <span class="dt-lbl">Log-Mel Matrices (.npy)</span>
+            </div>
+            <div class="dt-stat">
+              <span class="dt-val">40 &times; 216</span>
+              <span class="dt-lbl">MFCC Cepstra (.npy)</span>
+            </div>
+            <div class="dt-stat">
+              <span class="dt-val">128 &times; 128</span>
+              <span class="dt-lbl">Threshold-Free RP (.npy)</span>
+            </div>
+            <div class="dt-stat">
+              <span class="dt-val">5 Folds</span>
+              <span class="dt-lbl">Disjoint Stratified Splits</span>
+            </div>
+            <div class="dt-stat">
+              <span class="dt-val">100%</span>
+              <span class="dt-lbl">Tensor Validation Pass</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 02: Deep Learning Acoustic Architectures & Benchmarks -->
+        <div class="combined-subhead">
+          <div class="subhead-title-wrap">
+            <span class="subhead-badge">Phase 02</span>
+            <h3 class="subhead-title">Deep Learning Acoustic Architectures &amp; Empirical Benchmarks</h3>
+          </div>
+          <p class="subhead-meta">Comparative evaluation of convolutional, recurrent, and residual representations on ESC-50</p>
+        </div>
+
+        <div class="arch-cards-grid">
+          <!-- Card 1: ResNet-18 -->
+          <div class="arch-card arch-card-featured">
+            <div class="arch-card-top">
+              <div class="arch-icon-wrap icon-purple">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <span class="arch-pill pill-purple">Residual Learning</span>
+            </div>
+            <h3 class="arch-name">ResNet-18 (Residual Network)</h3>
+            <p class="arch-desc">An 18-layer deep residual network utilizing identity shortcut connections to solve vanishing gradients. Pretrained and fine-tuned on Log-Mel spectrograms for high-speed, accurate environmental feature extraction.</p>
+            <div class="arch-metrics">
+              <div class="metric"><span class="m-val">89.4%</span><span class="m-lbl">ESC-50 Accuracy</span></div>
+              <div class="metric"><span class="m-val">Log-Mel</span><span class="m-lbl">Primary Input</span></div>
+              <div class="metric"><span class="m-val">11.7M</span><span class="m-lbl">Parameters</span></div>
+            </div>
+          </div>
+
+          <!-- Card 2: VGG-16 -->
+          <div class="arch-card">
+            <div class="arch-card-top">
+              <div class="arch-icon-wrap icon-cyan">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </div>
+              <span class="arch-pill pill-cyan">Deep Convolutions</span>
+            </div>
+            <h3 class="arch-name">VGG-16 (Visual Geometry Group)</h3>
+            <p class="arch-desc">A classical 16-layer architecture employing stacked small 3×3 receptive filter convolutions with max pooling. Captures rich hierarchical spectral and temporal acoustic patterns across audio classes.</p>
+            <div class="arch-metrics">
+              <div class="metric"><span class="m-val">86.2%</span><span class="m-lbl">ESC-50 Accuracy</span></div>
+              <div class="metric"><span class="m-val">Log-Mel</span><span class="m-lbl">Primary Input</span></div>
+              <div class="metric"><span class="m-val">138.4M</span><span class="m-lbl">Parameters</span></div>
+            </div>
+          </div>
+
+          <!-- Card 3: SResNet & CNN-GRU -->
+          <div class="arch-card">
+            <div class="arch-card-top">
+              <div class="arch-icon-wrap icon-green">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              </div>
+              <span class="arch-pill pill-green">Specialized Baselines</span>
+            </div>
+            <h3 class="arch-name">SResNet &amp; CNN-GRU</h3>
+            <p class="arch-desc">SResNet employs squeezed residual blocks on linear MFCC cepstral bands (95.1%), while CNN-GRU models recurrent temporal transitions with bidirectional gated recurrent units (93.4%).</p>
+            <div class="arch-metrics">
+              <div class="metric"><span class="m-val">95.1%</span><span class="m-lbl">SResNet Acc</span></div>
+              <div class="metric"><span class="m-val">93.4%</span><span class="m-lbl">CNN-GRU Acc</span></div>
+              <div class="metric"><span class="m-val">MFCC/Mel</span><span class="m-lbl">Input Types</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Animated Benchmark Comparison -->
+        <div class="perf-chart-box">
+          <div class="perf-chart-head">
+            <div>
+              <h4 class="table-caption">Accuracy Benchmark</h4>
+              <p class="perf-chart-sub">ESC-50 classification accuracy by architecture</p>
+            </div>
+            <span class="perf-chip" id="perf-chip">SResNet &amp; ResNet-18 Benchmark</span>
+          </div>
+          <div class="perf-bars">
+            <div class="perf-row" data-value="95.1">
+              <span class="perf-name">SResNet</span>
+              <div class="perf-track"><span class="perf-fill" data-w="95.1"></span></div>
+              <span class="perf-pct">95.1%</span>
+            </div>
+            <div class="perf-row" data-value="93.4">
+              <span class="perf-name">CNN-GRU</span>
+              <div class="perf-track"><span class="perf-fill" data-w="93.4"></span></div>
+              <span class="perf-pct">93.4%</span>
+            </div>
+            <div class="perf-row" data-value="89.4">
+              <span class="perf-name">ResNet-18</span>
+              <div class="perf-track"><span class="perf-fill perf-fusion" data-w="89.4"></span></div>
+              <span class="perf-pct">89.4%</span>
+            </div>
+            <div class="perf-row" data-value="86.2">
+              <span class="perf-name">VGG-16</span>
+              <div class="perf-track"><span class="perf-fill" data-w="86.2"></span></div>
+              <span class="perf-pct">86.2%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparative Spec Table -->
+        <div class="spec-table-box">
+          <h4 class="table-caption">Comparative Model Performance on ESC-50</h4>
+          <table class="spec-table">
+            <thead>
+              <tr>
+                <th>Model Architecture</th>
+                <th>Feature Stream</th>
+                <th>Parameter Footprint</th>
+                <th>Inference Speed</th>
+                <th>ESC-50 Accuracy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight-row">
+                <td><strong>ResNet-18</strong></td>
+                <td>Log-Mel Spectrogram</td>
+                <td>~11.7 M</td>
+                <td>8.2 ms</td>
+                <td><strong class="col-highlight">89.4%</strong></td>
+              </tr>
+              <tr>
+                <td><strong>VGG-16</strong></td>
+                <td>Log-Mel Spectrogram</td>
+                <td>~138.4 M</td>
+                <td>14.5 ms</td>
+                <td>86.2%</td>
+              </tr>
+              <tr>
+                <td>SResNet</td>
+                <td>Linear MFCC Filterbanks</td>
+                <td>~8.6 M</td>
+                <td>7.8 ms</td>
+                <td>95.1%</td>
+              </tr>
+              <tr>
+                <td>CNN-GRU</td>
+                <td>Nonlinear Log-Mel Spectrograms</td>
+                <td>~5.6 M</td>
+                <td>9.2 ms</td>
+                <td>93.4%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Phase 03: Academic & Methodological Foundations -->
+        <div class="combined-subhead">
+          <div class="subhead-title-wrap">
+            <span class="subhead-badge">Phase 03</span>
+            <h3 class="subhead-title">Academic &amp; Methodological Foundations</h3>
+          </div>
+          <p class="subhead-meta">Peer-reviewed signal processing research backing this classification pipeline</p>
+        </div>
+
+        <!-- Academic Citation Card -->
+        <div class="citation-box">
+          <div class="citation-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
+          <div class="citation-body">
+            <h4 class="citation-title">Academic Reference</h4>
+            <p class="citation-text">
+              Zeng, J., Zhou, C., &amp; Cai, D. (2024). <em>Sound recognition fusion: A deep learning approach for environmental sound classification by fusing linear and nonlinear features.</em> EURASIP Journal on Advances in Signal Processing.
+            </p>
+            <div class="citation-tags">
+              <span class="c-tag">Environmental Sound Classification</span>
+              <span class="c-tag">Threshold-Free Recurrence Plot</span>
+              <span class="c-tag">Dual-Modal Feature Fusion</span>
+              <span class="c-tag">ESC-50 Benchmark</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════ VIEW 3: ESC-50 TAXONOMY ════════════ -->
+    <section class="view-panel" id="view-taxonomy" role="tabpanel" aria-labelledby="tab-nav-taxonomy" hidden>
+      <div class="panel-inner">
+        <div class="panel-title-group">
+          <span class="badge-pill">Dataset Ontology</span>
+          <h2 class="panel-heading">ESC-50 Sound Category Taxonomy</h2>
+          <p class="panel-subtext">50 balanced environmental acoustic classes organized across 5 distinct domains. Search or filter to explore classes and load them directly into the studio.</p>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="taxonomy-toolbar">
+          <div class="taxonomy-toolbar-top">
+            <div class="search-input-wrap">
+              <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="taxonomy-search" class="taxonomy-search-input" placeholder="Search categories (e.g., dog, rain, siren, clock)..." aria-label="Search sound categories" />
+              <button class="search-clear" id="search-clear" type="button" aria-label="Clear search" hidden>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="taxonomy-actions">
+              <span class="result-count" id="tax-count">50 classes</span>
+              <button class="ghost-btn" id="surprise-btn" type="button" title="Load a random sound class into the studio">
+                <span aria-hidden="true">🎲</span> Surprise me
+              </button>
+            </div>
+          </div>
+
+          <div class="cat-filter-tabs" id="cat-tabs" role="tablist" aria-label="Filter category groups">
+            <button class="filter-tab active" data-group="all" role="tab" aria-selected="true">All (50)</button>
+            <button class="filter-tab" data-group="Animals" role="tab" aria-selected="false">🐾 Animals (10)</button>
+            <button class="filter-tab" data-group="Natural" role="tab" aria-selected="false">🌿 Natural (10)</button>
+            <button class="filter-tab" data-group="Human" role="tab" aria-selected="false">👤 Human (10)</button>
+            <button class="filter-tab" data-group="Interior" role="tab" aria-selected="false">🏠 Interior (10)</button>
+            <button class="filter-tab" data-group="Urban" role="tab" aria-selected="false">🏙️ Urban (10)</button>
+          </div>
+        </div>
+
+        <!-- Grid of 50 Classes -->
+        <div class="taxonomy-grid" id="cat-grid" role="region" aria-label="Sound classes grid">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ════════════ VIEW 5: TRAINING & MODEL (Developer Portal) ════════════ -->
+    <section class="view-panel" id="view-training" role="tabpanel" aria-labelledby="tab-nav-training" hidden>
+      <div class="panel-inner">
+        <div class="panel-title-group">
+          <span class="badge-pill">Developer Portal</span>
+          <h2 class="panel-heading">Model Training &amp; <span class="gradient-text">Checkpoint Management</span></h2>
+          <p class="panel-subtext">Configure hyperparameters, trigger training runs on ESC-50 data, and manage saved model checkpoints. Connected to <code>/api/train</code> and <code>/api/save-model</code> endpoints.</p>
+        </div>
+
+        <div class="training-layout">
+          <!-- Training Configuration Card -->
+          <div class="card-box card-module training-config-card">
+            <div class="card-header">
+              <span class="card-tag">Training Configuration</span>
+              <span class="card-sub-info" id="training-api-status">API Connected</span>
+            </div>
+
+            <div class="train-form">
+              <div class="form-row">
+                <div class="form-field">
+                  <label class="control-label" for="train-model-type">Model Architecture</label>
+                  <div class="select-wrap">
+                    <select id="train-model-type" class="custom-select">
+                      <option value="resnet18" selected>ResNet-18</option>
+                      <option value="vgg16">VGG-16</option>
+                      <option value="sresnet">SResNet</option>
+                      <option value="cnngru">CNN-GRU</option>
+                    </select>
+                    <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label class="control-label" for="train-epochs">Epochs</label>
+                  <input type="number" id="train-epochs" class="custom-input" value="50" min="1" max="500" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label class="control-label" for="train-batch-size">Batch Size</label>
+                  <input type="number" id="train-batch-size" class="custom-input" value="32" min="1" max="256" />
+                </div>
+                <div class="form-field">
+                  <label class="control-label" for="train-lr">Learning Rate</label>
+                  <input type="number" id="train-lr" class="custom-input" value="0.001" step="0.0001" min="0.00001" max="1" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label class="control-label">Cross-Validation Folds</label>
+                  <div class="fold-checkboxes" id="fold-checks">
+                    <label class="fold-check"><input type="checkbox" value="1" checked /><span>Fold 1</span></label>
+                    <label class="fold-check"><input type="checkbox" value="2" checked /><span>Fold 2</span></label>
+                    <label class="fold-check"><input type="checkbox" value="3" checked /><span>Fold 3</span></label>
+                    <label class="fold-check"><input type="checkbox" value="4" checked /><span>Fold 4</span></label>
+                    <label class="fold-check"><input type="checkbox" value="5" checked /><span>Fold 5</span></label>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label class="control-label">Data Augmentation</label>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="train-augment" checked />
+                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                    <span class="toggle-label" id="aug-label">Enabled (3× expansion)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label class="control-label" for="train-desc">Training Run Description</label>
+                <input type="text" id="train-desc" class="custom-input" placeholder="e.g., Fine-tuning fusion model with augmented data" />
+              </div>
+
+              <button class="btn-run btn-train" id="btn-start-training" type="button">
+                <span class="btn-flex" id="btn-train-idle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <span>Start Training Run</span>
+                </span>
+                <span class="btn-flex" id="btn-train-busy" hidden>
+                  <span class="spin-ring" aria-hidden="true"></span>
+                  <span>Training in Progress...</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Training Progress Card -->
+          <div class="card-box card-module training-progress-card">
+            <div class="card-header">
+              <span class="card-tag">Training Progress</span>
+              <span class="card-sub-info" id="training-job-id">No active job</span>
+            </div>
+
+            <div class="training-live-metrics" id="training-live-metrics">
+              <div class="train-metric-tile">
+                <span class="train-metric-lbl">Epoch</span>
+                <span class="train-metric-val" id="tm-epoch">—</span>
+              </div>
+              <div class="train-metric-tile">
+                <span class="train-metric-lbl">Train Loss</span>
+                <span class="train-metric-val" id="tm-train-loss">—</span>
+              </div>
+              <div class="train-metric-tile">
+                <span class="train-metric-lbl">Val Loss</span>
+                <span class="train-metric-val" id="tm-val-loss">—</span>
+              </div>
+              <div class="train-metric-tile">
+                <span class="train-metric-lbl">Train Acc</span>
+                <span class="train-metric-val" id="tm-train-acc">—</span>
+              </div>
+              <div class="train-metric-tile">
+                <span class="train-metric-lbl">Val Acc</span>
+                <span class="train-metric-val" id="tm-val-acc">—</span>
+              </div>
+              <div class="train-metric-tile">
+                <span class="train-metric-lbl">Status</span>
+                <span class="train-metric-val" id="tm-status">Idle</span>
+              </div>
+            </div>
+
+            <div class="train-progress-bar-wrap">
+              <div class="train-progress-track">
+                <div class="train-progress-fill" id="train-progress-fill"></div>
+              </div>
+              <span class="train-progress-pct" id="train-progress-pct">0%</span>
+            </div>
+
+            <div class="train-chart-area">
+              <canvas id="train-loss-chart" class="train-chart-canvas" width="560" height="160" aria-label="Training loss curve"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkpoint Management -->
+        <div class="checkpoint-section">
+          <div class="card-box card-module">
+            <div class="card-header">
+              <span class="card-tag">Model Checkpoints &amp; Version History</span>
+              <button class="ghost-btn" id="btn-save-checkpoint" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Save New Checkpoint
+              </button>
+            </div>
+            <div class="checkpoint-grid" id="checkpoint-grid">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════ VIEW 6: SYSTEM ANALYTICS ════════════ -->
+    <section class="view-panel" id="view-analytics" role="tabpanel" aria-labelledby="tab-nav-analytics" hidden>
+      <div class="panel-inner">
+        <div class="panel-title-group">
+          <span class="badge-pill">System Intelligence</span>
+          <h2 class="panel-heading">Dataset &amp; System <span class="gradient-text">Analytics Dashboard</span></h2>
+          <p class="panel-subtext">Real-time system health, dataset distribution charts, model comparison, and processing telemetry. Connected to <code>/api/stats</code> endpoint.</p>
+        </div>
+
+        <!-- System Health Banner -->
+        <div class="analytics-health-banner" id="analytics-health-banner">
+          <div class="health-stat">
+            <span class="health-icon">🟢</span>
+            <div>
+              <span class="health-val" id="ah-status">Healthy</span>
+              <span class="health-lbl">Server Status</span>
+            </div>
+          </div>
+          <div class="health-stat">
+            <div>
+              <span class="health-val" id="ah-uptime">—</span>
+              <span class="health-lbl">Server Uptime</span>
+            </div>
+          </div>
+          <div class="health-stat">
+            <div>
+              <span class="health-val" id="ah-predictions">0</span>
+              <span class="health-lbl">Total Predictions</span>
+            </div>
+          </div>
+          <div class="health-stat">
+            <div>
+              <span class="health-val" id="ah-memory">— MB</span>
+              <span class="health-lbl">Memory Usage</span>
+            </div>
+          </div>
+          <div class="health-stat">
+            <div>
+              <span class="health-val" id="ah-node">—</span>
+              <span class="health-lbl">Node.js Version</span>
+            </div>
+          </div>
+          <div class="health-stat">
+            <div>
+              <span class="health-val" id="ah-checkpoints">0</span>
+              <span class="health-lbl">Saved Checkpoints</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          <!-- Dataset Distribution Chart -->
+          <div class="card-box card-module analytics-card">
+            <div class="card-header">
+              <span class="card-tag">Class Distribution</span>
+              <span class="card-sub-info">ESC-50 Dataset</span>
+            </div>
+            <div class="analytics-chart-area">
+              <canvas id="class-dist-chart" class="analytics-canvas" width="560" height="220" aria-label="Class distribution bar chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Model Performance Radar -->
+          <div class="card-box card-module analytics-card">
+            <div class="card-header">
+              <span class="card-tag">Model Performance Comparison</span>
+              <span class="card-sub-info">ESC-50 Benchmark</span>
+            </div>
+            <div class="analytics-chart-area">
+              <canvas id="model-perf-chart" class="analytics-canvas" width="560" height="220" aria-label="Model performance comparison"></canvas>
+            </div>
+          </div>
+
+          <!-- Processing Telemetry -->
+          <div class="card-box card-module analytics-card analytics-card-full">
+            <div class="card-header">
+              <span class="card-tag">Preprocessing Telemetry</span>
+              <span class="card-sub-info" id="telemetry-timestamp">—</span>
+            </div>
+            <div class="telemetry-grid" id="telemetry-grid">
+              <div class="telem-item">
+                <span class="telem-val" id="tg-audio">—</span>
+                <span class="telem-lbl">Processed Audio Files</span>
+              </div>
+              <div class="telem-item">
+                <span class="telem-val" id="tg-mel">—</span>
+                <span class="telem-lbl">Log-Mel Spectrograms</span>
+              </div>
+              <div class="telem-item">
+                <span class="telem-val" id="tg-mfcc">—</span>
+                <span class="telem-lbl">MFCC Cepstra</span>
+              </div>
+              <div class="telem-item">
+                <span class="telem-val" id="tg-rp">—</span>
+                <span class="telem-lbl">Recurrence Plots</span>
+              </div>
+              <div class="telem-item">
+                <span class="telem-val" id="tg-sr">22,050 Hz</span>
+                <span class="telem-lbl">Sample Rate</span>
+              </div>
+              <div class="telem-item">
+                <span class="telem-val" id="tg-dur">5.0s</span>
+                <span class="telem-lbl">Clip Duration</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Endpoint Reference -->
+        <div class="card-box card-module api-ref-card">
+          <div class="card-header">
+            <span class="card-tag">API Endpoint Reference</span>
+            <span class="card-sub-info">Express.js Backend</span>
+          </div>
+          <table class="spec-table api-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Endpoint</th>
+                <th>Description</th>
+                <th>Payload</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="method-badge post">POST</span></td>
+                <td><code>/api/predict</code></td>
+                <td>Audio classification inference</td>
+                <td>multipart/form-data (audio file)</td>
+              </tr>
+              <tr>
+                <td><span class="method-badge post">POST</span></td>
+                <td><code>/api/train</code></td>
+                <td>Trigger model training run</td>
+                <td>JSON (model config, hyperparams)</td>
+              </tr>
+              <tr>
+                <td><span class="method-badge get">GET</span></td>
+                <td><code>/api/train/:jobId</code></td>
+                <td>Check training job progress</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><span class="method-badge post">POST</span></td>
+                <td><code>/api/save-model</code></td>
+                <td>Save model checkpoint</td>
+                <td>JSON (name, description, model type)</td>
+              </tr>
+              <tr>
+                <td><span class="method-badge get">GET</span></td>
+                <td><code>/api/stats</code></td>
+                <td>System &amp; dataset analytics</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><span class="method-badge get">GET</span></td>
+                <td><code>/api/health</code></td>
+                <td>Health check</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Clean, Uncluttered Footer -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="footer-row">
+      <div class="footer-brand">
+        <span class="footer-logo">Sound<span class="gradient-text">Sense</span></span>
+        <span class="footer-tagline">Deep Learning Environmental Sound Classifier</span>
+      </div>
+      <div class="footer-meta">
+        <span>Based on EURASIP 2024 Research</span>
+        <span>&bull;</span>
+        <span>ESC-50 Dataset Taxonomy</span>
+        <span>&bull;</span>
+        <span>Client-side Web Audio Engine</span>
+        <button class="footer-shortcut" id="footer-shortcuts" type="button">Press <kbd>?</kbd> for shortcuts</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Full-page drop target overlay -->
+  <div class="drop-overlay" id="drop-overlay" aria-hidden="true" hidden>
+    <div class="drop-overlay-card">
+      <div class="drop-overlay-icon">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <p class="drop-overlay-title">Drop to analyze</p>
+      <p class="drop-overlay-sub">Release your audio file anywhere to load it into the studio</p>
+    </div>
+  </div>
+
+  <!-- Keyboard shortcuts dialog -->
+  <div class="modal-backdrop" id="shortcuts-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="shortcuts-title">
+      <div class="modal-head">
+        <div>
+          <span class="modal-eyebrow">Workflow</span>
+          <h3 class="modal-title" id="shortcuts-title">Keyboard shortcuts</h3>
+        </div>
+        <button class="icon-btn" id="shortcuts-close" type="button" aria-label="Close shortcuts dialog">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="shortcut-grid">
+        <div class="shortcut-item"><kbd>1</kbd><span>Classifier Studio</span></div>
+        <div class="shortcut-item"><kbd>2</kbd><span>Architecture &amp; Pipeline</span></div>
+        <div class="shortcut-item"><kbd>3</kbd><span>ESC-50 Taxonomy</span></div>
+        <div class="shortcut-item dev-only-feature"><kbd>4</kbd><span>Training &amp; Model</span></div>
+        <div class="shortcut-item dev-only-feature"><kbd>5</kbd><span>System Analytics</span></div>
+        <div class="shortcut-item"><kbd>Space</kbd><span>Play / pause audio</span></div>
+        <div class="shortcut-item"><kbd>C</kbd><span>Run classification</span></div>
+        <div class="shortcut-item"><kbd>R</kbd><span>Record with microphone</span></div>
+        <div class="shortcut-item"><kbd>/</kbd><span>Search taxonomy</span></div>
+        <div class="shortcut-item"><kbd>?</kbd><span>Toggle this panel</span></div>
+        <div class="shortcut-item"><kbd>Esc</kbd><span>Close overlays</span></div>
+      </div>
+      <p class="modal-footnote">Shortcuts stay out of the way while you type in an input.</p>
+    </div>
+  </div>
+
+  <!-- Developer Login Modal (Google-style clean authentication dialog) -->
+  <div class="modal-backdrop" id="auth-modal" hidden>
+    <div class="modal-card auth-modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+      <div class="modal-head">
+        <div class="auth-modal-title-box">
+          <div class="auth-icon-badge" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <span class="modal-eyebrow">Developer Portal</span>
+            <h3 class="modal-title" id="auth-modal-title">Developer Authentication</h3>
+          </div>
+        </div>
+        <button class="icon-btn" id="auth-modal-close" type="button" aria-label="Close login dialog">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <p class="auth-modal-desc">
+        Sign in to unlock <strong>Model Training controls</strong>, <strong>Checkpoint management</strong>, and <strong>Live System Analytics</strong>. Standard audio classification studio remains freely accessible without sign-in.
+      </p>
+
+      <form id="auth-login-form" class="auth-form" autocomplete="on">
+        <div class="auth-field">
+          <label for="auth-username" class="auth-label">Developer Username / Email</label>
+          <div class="auth-input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="auth-username" class="custom-input auth-input" placeholder="developer@soundsense.ai" value="developer@soundsense.ai" required autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="auth-password" class="auth-label">Password</label>
+          <div class="auth-input-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="auth-password" class="custom-input auth-input" placeholder="Enter password" value="soundsense2024" required autocomplete="current-password" />
+          </div>
+        </div>
+
+        <div class="auth-demo-banner">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+            <span class="auth-demo-pill">Quick Demo Access</span>
+            <button type="button" class="quick-demo-btn" id="btn-quick-login" title="Sign in instantly with 1-click">
+              ⚡ 1-Click Instant Login
+            </button>
+          </div>
+          <p class="auth-demo-text">Verified credentials: <strong>developer@soundsense.ai</strong> / <strong>soundsense2024</strong>. Click 1-Click Instant Login above or the button below.</p>
+        </div>
+
+        <div id="auth-error-msg" class="auth-error" hidden></div>
+
+        <button type="submit" class="btn-run btn-auth-submit" id="btn-login-submit">
+          <span class="btn-flex" id="btn-login-idle">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            <span>Sign In as Developer</span>
+          </span>
+          <span class="btn-flex" id="btn-login-busy" hidden>
+            <span class="spin-ring" aria-hidden="true"></span>
+            <span>Verifying Credentials...</span>
+          </span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- Hidden audio tag for native playback -->
+  <audio id="audio-el" hidden aria-hidden="true"></audio>
+
+  <!-- Core Script -->
+  <script src="app.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>

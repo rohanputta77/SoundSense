@@ -1,0 +1,3 @@
+SoundSense Checkpoint: resnet18_v1
+Accuracy: 89.4%
+Architecture: Deep Residual Network with 18 layers (Log-Mel Spectrogram input)
